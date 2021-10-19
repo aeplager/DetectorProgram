@@ -12,14 +12,14 @@ import time
 
 def return_file_names(process):
     try:
-        file_name = process.cmdline () 
+        file_name = process.cmdline() 
         return "SUCCESS", file_names
     except Exception as ex:       
         return "FAILURE: " + str(ex), None
     
 def return_user_name(process):
     try:
-        username = process.username () 
+        username = process.username() 
         return "SUCCESS", username
     except Exception as ex:       
         return "FAILURE: " + str(ex), None
@@ -34,6 +34,7 @@ try:
     # print("Printed immediately.")
     # Initial Set Up
     PYODBC_Connection, df, sts = sq.import_initialization()
+    ignore_launch = 0
     if (sts == "SUCCESS") and (len(df)>0):
         row_1 = df.iloc[0]    
         base_directory = row_1["base_directory"]
@@ -72,31 +73,28 @@ try:
                     #user_name = process.username ()
                     sts_user_name, user_name = return_user_name(process)                    
                     sts_file_name, file_names = return_file_names(process)                    
-                    #file_names = process.cmdline ()                                  
-                    if (Name == "blender") and (sts_user_name=="SUCCESS") and (sts_user_name=="SUCCESS"):
+                    #file_names = process.cmdline ()                       
+                    if ((Name == "blender") or (Name=="blender.exe")) and (sts_user_name=="SUCCESS") and (sts_user_name=="SUCCESS"):
                         blender_not_open = 1
-                        print("FOUND BLENDER")
-                        print(file_names)
-                        ln_files = len(file_names)                
-                        if (ln_files==1):
-                            # Kill the Proccess because this process has nothing open
-                            print("KILL PROCESS - POSITION 1")
-                            os.kill(int(ID), signal.SIGKILL)
-                        else:
-                            # Test if file name is the same
+                        p = psutil.Process(int(ID))
+                        file_names = p.cmdline()
+                        if (len(file_names)==0):
+                            # Kill as this is just a version that is open
+                            p.terminate()
+                        else:                            
                             file_name = file_names[1]
-                            print("File Name = " + file_name)
-                            print("Launch File = " + base_directory + launch_file)
-                            if (file_name == base_directory + launch_file):
-                                # Do Not Launch
-                                detect_file_open = 1
-                                print("File Already Open")
+                            start_loc = file_name.rfind("\\")
+                            if (start_loc<=0):
+                                # Terminate as this a blank file
+                                p.terminate()
                             else:
-                                # Kill the Proccess
-                                print("KILL PROCESS - POSITION 2")
-                                os.kill(int(ID), signal.SIGKILL)
-                
-                if (detect_file_open == 0) or (blender_not_open == 0):
+                                end_loc = len(file_name)                                
+                                file_name = file_name[start_loc+1:]                                    
+                                if (launch_file == file_name):                                
+                                    ignore_launch = 1
+                                else:
+                                    p.terminate()
+                if (ignore_launch == 0):
                     print("Opening Files")
                     base_cmd = str(base_cmd)
                     if (len(base_cmd.strip())>1) and (base_cmd.lower() !='nan'):
