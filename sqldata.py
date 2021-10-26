@@ -4,26 +4,30 @@ import json
 import os
 #import api_general as ap
 import requests 
-def connect_db():
+import sqlalchemy
+from sqlalchemy import create_engine, event
+
+def connect_db(PYODBC_Connection):
     try:
-        PYODBC_Connection, df, sts = import_initialization()        
+        #PYODBC_Connection, df, sts = import_initialization()        
         cnxn = pyodbc.connect(PYODBC_Connection)                
+        sts = "SUCCESS"
         return cnxn, sts
     except Exception as ex:            
         sts = "FAILURE:  " + str(ex)                    
         return None, sts
-def ret_pandas(sql):
+def ret_pandas(sql, PYODBC_Connection):
     try:
-        cnxn, sts = connect_db()   
+        cnxn, sts = connect_db(PYODBC_Connection)   
         df = pd.read_sql(sql, cnxn)                          
         cnxn.commit()
         cnxn.close()        
         return df, "SUCCESS"
     except Exception as ex:                    
         return None, "FAILURE:  " + str(ex)        
-def ret_json(sql):
+def ret_json(sql, PYODBC_Connection):
     try:        
-        data, sts = ret_pandas(sql)
+        data, sts = ret_pandas(sql, PYODBC_Connection)
         if (sts == "SUCCESS"):
             jsonstring = data.to_json(orient='index')
         else:
@@ -33,13 +37,16 @@ def ret_json(sql):
     except Exception as ex:            
         sts = "FAILURE:  " + str(ex)        
         return None, sts   
-def run_sql(sql):
-    try:
-        cnxn, sts = connect_db()
-        cursor = cnxn.cursor()            
+def run_sql(sql, PYODBC_Connection):
+    try:        
+        #PYODBC_Connection, df, sts = import_initialization()        
+        conn = pyodbc.connect(PYODBC_Connection)
+        #conn, sts = connect_db()
+        cursor = conn.cursor()
         cursor.execute(sql)
-        cnxn.commit()
-        cnxn.close()
+        cursor.close()
+        conn.commit()    #return_value = os.system(cmd)  
+        conn.close()
         sts="SUCCESS"        
         return sts 
     except Exception as ex:            
@@ -47,7 +54,7 @@ def run_sql(sql):
         return sts   
 
 def import_initialization():    
-    try:    
+    try:
         df = pd.read_csv(r'InitializationFile.csv')        
         ln = len(df)
         if (ln>0):
@@ -70,3 +77,24 @@ def import_initialization():
     except Exception as ex:            
         sts = "FAILURE:  " + str(ex)   
         return None, None, sts
+
+def return_sql_alchemy_string(df):
+    try:
+        ln = len(df)
+        if (ln>0):
+            row_1 = df.iloc[0]
+            Driver = row_1.Driver
+            Driver = Driver.replace("{","").replace("}","")
+            Server = row_1.Server
+            Server = Server.replace(",1433","").replace(", 1433","")
+            Database = row_1.Database
+            Pwd = row_1.Pwd
+            Uid = row_1.Uid            
+            conn_string = "mssql+pyodbc://" + Uid + ":" + Pwd + "@" + Server + ":1433/" + Database + "?driver=" + Driver
+            sts = "SUCCESS"
+        else:
+            sts = "FAILURE"
+        return conn_string, sts
+    except Exception as ex:            
+        sts = "FAILURE:  " + str(ex)   
+        return None, sts          

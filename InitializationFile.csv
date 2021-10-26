@@ -1,2 +1,2 @@
-﻿Driver,Server,Database,Pwd,Uid,AdditionalCommands,UseServer,define_samples_path,output_dir_base,docker_dir_define_samples,docker_dir,base_cmd,base_directory,base_file
-{ODBC Driver 17 for SQL Server},"host.docker.internal,1433",amagcons,amagcons_vm#12,sa,Encrypt=yes;TrustServerCertificate=yes,NO,,,,,,C://BlenderFiles//,base_file.blend
+﻿Driver,Server,Database,Pwd,Uid,AdditionalCommands,UseServer,define_samples_path,output_dir_base,docker_dir_define_samples,docker_dir,base_cmd,base_directory,base_file,project_name
+{ODBC Driver 17 for SQL Server},"host.docker.internal,1433",amagcons,amagcons_vm#12,sa,Encrypt=yes;TrustServerCertificate=yes,NO,C://BlenderFiles//BaseDetectorFile//,C://BlenderFiles//DockerData//,C://BlenderFiles//Docker//amagcons//JMONSEL//,C://BlenderFiles//Docker//,,C://BlenderFiles//,base_file.blend,definesample_

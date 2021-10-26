@@ -46,7 +46,7 @@ try:
             print("Starting round " + str(i_round))        
             # Connection to Database
             sql = f"EXEC [WebSite].[FileMaxGetInfo]"
-            df, sts = sq.ret_pandas(sql)
+            df, sts = sq.ret_pandas(sql, PYODBC_Connection)
             sts = "SUCCESS"
             ln = len(df)
             base_launch = 0
@@ -115,4 +115,3 @@ try:
 except Exception as ex:            
     sts = "FAILURE-" + str(ex)
     print(sts)
-
