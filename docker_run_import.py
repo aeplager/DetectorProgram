@@ -24,7 +24,7 @@ try:
         base_cmd_copy = "cp"
         base_cmd_delete = "rm"
     # Establish Files for Import
-    
+    print(sts)
     if (len(df)>0) and (sts=="SUCCESS"):
         row_1 = df.iloc[0]    
         define_samples_path = row_1["define_samples_path"]
@@ -48,6 +48,8 @@ try:
             # Establish Source and Destination Files
             src = dir_import + "ResultsAll.csv"
             dst = dir_import + "import_file.csv"            
+            current_status = row["SYSNAME"]
+            project_file = row["FileName"]
             # Copy the files
             print(shutil.copyfile(src, dst))                           
             # Import the file into Pandas Dataframe
@@ -57,7 +59,8 @@ try:
                 str_col_name_striped = str_col_name.strip()
                 df_import.rename(columns ={str_col_name:str_col_name_striped}, inplace=True)
             # Rename All Fields                
-            df_import.rename(columns ={'TimeSeconds':'TimeSeconds','TimeHours':'TimeHours','TimePixel':'TimePixel','ScanRegionName':'ScanRegionName','X_nm':'X_nm','Y_nm':'Y_nm','FrameNum':'FrameNum','N':'N','BeamV':'BeamV','BeamSizeX':'BeamSizeX','BeamSizeY':'BeamSizeY','BeamRotAng':'BeamRotAng','thickness':'thickness','energyHist':'energyHist','traj_image':'traj_image','traj_log':'traj_log','BSEf':'BSEf','SEf':'SEf','Xf':'Xf','rotChamber':'rotChamber','Det1_BSEf':'Det1_BSEf','Det1_SEf':'Det1_SEf','Det1_Xf':'Det1_Xf','energyHist.1':'energyHist_1','traj_log.1':'traj_log_1','Det2_BSEf':'Det2_BSEf','Det2_SEf':'Det2_SEf','Det2_Xf':'Det2_Xf','energyHist.2':'energyHist_2','traj_log.2':'traj_log_2'}, inplace=True)
+            #print(df_import.dtypes)
+            df_import.rename(columns ={'TimeSeconds':'TimeSeconds','TimeHours':'TimeHours','TimePixel':'TimePixel','ScanRegionName':'ScanRegionName','X_nm':'X_nm','Y_nm':'Y_nm','FrameNum':'FrameNum','N':'N','BeamV':'BeamV','BeamSizeX':'BeamSizeX','BeamSizeY':'BeamSizeY','BeamRotAng':'BeamRotAng','thickness':'thickness','energyHist':'energyHist','traj_image':'traj_image','traj_log':'traj_log','BSEf':'BSEf','SEf':'SEf','Xf':'Xf','rotChamber':'rotChamber','Det1_BSEf':'Det1_BSEf','Det1_SEf':'Det1_SEf','Det1_Xf':'Det1_Xf','energyHist.1':'energyHist_1','traj_log.1':'traj_log_1','Det2_BSEf':'Det2_BSEf','Det2_SEf':'Det2_SEf','Det2_Xf':'Det2_Xf'}, inplace=True)
             # Establish Project ID and Project Version ID
             project_id = dir_to_copy_from[:loc_separator]
             project_version_id = dir_to_copy_from[loc_separator+1:]            
@@ -65,18 +68,55 @@ try:
             df_import["ProjectVersionsID"] = project_version_id
 
             # Default Extra Fields
-            df_import["PixelNum"] = 1
-            df_import["energyHist_3"] = 0
-            df_import["traj_log_3"] = 0
-            df_import["Det2_Xf"] = 0
-            df_import["Det2_SEf"] = 0
-            df_import["Det2_BSEf"] = 0  
-            df_import["Det3_Xf"] = 0
-            df_import["Det3_SEf"] = 0
-            df_import["Det3_BSEf"] = 0  
+            #,'energyHist.2':'energyHist_2','traj_log.2':'traj_log_2'
+            df_import["energyHist_2"] = 0.0
+            df_import["traj_log_2"] = 0.0
+            df_import["PixelNum"] = 1.0
+            df_import["energyHist_3"] = 0.0
+            df_import["traj_log_3"] = 0.0
+            df_import["Det2_Xf"] = 0.0
+            df_import["Det2_SEf"] = 0.0
+            df_import["Det2_BSEf"] = 0.0 
+            df_import["Det3_Xf"] = 0.0
+            df_import["Det3_SEf"] = 0.0
+            df_import["Det3_BSEf"] = 0.0 
+            # Force Numeric to Numbers
+            df_import["Det1_BSEf"] = pd.to_numeric(df_import["Det1_BSEf"], errors='coerce')
+            df_import["PixelNum"] = pd.to_numeric(df_import["PixelNum"], errors='coerce')
+            df_import["TimeSeconds"] = pd.to_numeric(df_import["TimeSeconds"], errors='coerce')
+            df_import["TimeHours"] = pd.to_numeric(df_import["TimeHours"], errors='coerce')
+            df_import["TimePixel"] = pd.to_numeric(df_import["TimePixel"], errors='coerce')
+            df_import["X_nm"] = pd.to_numeric(df_import["X_nm"], errors='coerce')
+            df_import["Y_nm"] = pd.to_numeric(df_import["Y_nm"], errors='coerce')
+            df_import["FrameNum"] = pd.to_numeric(df_import["FrameNum"], errors='coerce')
+            df_import["N"] = pd.to_numeric(df_import["N"], errors='coerce')
+            df_import["BeamV"] = pd.to_numeric(df_import["BeamV"], errors='coerce')
+            df_import["BeamSizeX"] = pd.to_numeric(df_import["BeamSizeX"], errors='coerce')
+            df_import["BeamSizeY"] = pd.to_numeric(df_import["BeamSizeY"], errors='coerce')
+            df_import["thickness"] = pd.to_numeric(df_import["thickness"], errors='coerce')
+            df_import["BSEf"] = pd.to_numeric(df_import["BSEf"], errors='coerce')
+            df_import["SEf"] = pd.to_numeric(df_import["SEf"], errors='coerce')
+            df_import["Xf"] = pd.to_numeric(df_import["Xf"], errors='coerce')
+            df_import["rotChamber"] = pd.to_numeric(df_import["rotChamber"], errors='coerce')
+            df_import["Det1_BSEf"] = pd.to_numeric(df_import["Det1_BSEf"], errors='coerce')
+            df_import["Det1_SEf"] = pd.to_numeric(df_import["Det1_SEf"], errors='coerce')
+            df_import["Det1_Xf"] = pd.to_numeric(df_import["Det1_Xf"], errors='coerce')
+            df_import["Det2_BSEf"] = pd.to_numeric(df_import["Det2_BSEf"], errors='coerce')
+            df_import["Det2_SEf"] = pd.to_numeric(df_import["Det2_SEf"], errors='coerce')
+            df_import["Det2_Xf"] = pd.to_numeric(df_import["Det2_Xf"], errors='coerce')
+            df_import["energyHist_2"] = pd.to_numeric(df_import["energyHist_2"], errors='coerce')
+            df_import["traj_log_2"] = pd.to_numeric(df_import["traj_log_2"], errors='coerce')
+            df_import["Det3_BSEf"] = pd.to_numeric(df_import["Det3_BSEf"], errors='coerce')
+            df_import["Det3_SEf"] = pd.to_numeric(df_import["Det3_SEf"], errors='coerce')
+            df_import["Det3_Xf"] = pd.to_numeric(df_import["Det3_Xf"], errors='coerce')
+            df_import["energyHist_3"] = pd.to_numeric(df_import["energyHist_3"], errors='coerce')
+            df_import["traj_log_3"] = pd.to_numeric(df_import["traj_log_3"], errors='coerce')
+            # Replace Any NaN to 0
+            df_import.replace('NaN',0)
             # Reorder the Columns
             df_import = df_import[['ProjectID','ProjectVersionsID','PixelNum','TimeSeconds','TimeHours','TimePixel','ScanRegionName','X_nm','Y_nm','FrameNum','N','BeamV','BeamSizeX','BeamSizeY','BeamRotAng','thickness','energyHist','traj_image','traj_log','BSEf','SEf','Xf','rotChamber','Det1_BSEf','Det1_SEf','Det1_Xf','energyHist_1','traj_log_1','Det2_BSEf','Det2_SEf','Det2_Xf','energyHist_2','traj_log_2','Det3_BSEf','Det3_SEf','Det3_Xf','energyHist_3','traj_log_3']]
             # Change the types of Columns to the appropriate field
+            #print(df_import["Det1_BSEf"].head())
             df_import["ProjectID"] = df_import["ProjectID"].astype("int")
             df_import["ProjectVersionsID"] = df_import["ProjectVersionsID"].astype("int")
             df_import["PixelNum"] = df_import["PixelNum"].astype("float")
@@ -124,7 +164,14 @@ try:
             def receive_before_cursor_execute(conn, cursor, statement, params, context, executemany):
                 if executemany:
                     cursor.fast_executemany = True
-            df_import.to_sql('TrajectoryData', eng, index=False, if_exists="append", schema="WebSite")         
+            df_import.to_sql('TrajectoryData', eng, index=False, if_exists="append", schema="WebSite")   
+
+
+            if (current_status=="FINISHED"):
+                current_status = "FINALIZED"
+                sql = f"EXEC [WebSite].[FileNameStatusUpsert] @FileName = '{project_file}', @Status = '{current_status}', @ContainerID = '', @ContainerName = ''"
+                sts = sq.run_sql(sql, PYODBC_Connection)                                
+
     sts = "SUCCESS"
     print(sts)
 except Exception as ex:            

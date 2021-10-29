@@ -55,7 +55,9 @@ def run_sql(sql, PYODBC_Connection):
 
 def import_initialization():    
     try:
-        df = pd.read_csv(r'InitializationFile.csv')        
+        path = "/home/amagcons/Documents/BlenderFiles/PCScripts/InitializationFile.csv" 
+        #df = pd.read_csv(r'InitializationFile.csv')        
+        df = pd.read_csv(path)
         ln = len(df)
         if (ln>0):
             row_1 = df.iloc[0]
@@ -86,7 +88,12 @@ def return_sql_alchemy_string(df):
             Driver = row_1.Driver
             Driver = Driver.replace("{","").replace("}","")
             Server = row_1.Server
-            Server = Server.replace(",1433","").replace(", 1433","")
+            Server = Server.replace(",1433","").replace(", 1433","")            
+            UseServer = row_1.UseServer
+            UseServer = UseServer.upper().strip()        
+            if (UseServer=="YES"):
+                myip = requests.get('https://www.wikipedia.org').headers['X-Client-IP']
+                Server = str(myip)            
             Database = row_1.Database
             Pwd = row_1.Pwd
             Uid = row_1.Uid            

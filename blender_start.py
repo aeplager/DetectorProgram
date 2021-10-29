@@ -7,6 +7,7 @@ import shutil
 import signal
 import sqldata as sq
 import subprocess
+import platform
 import os
 import time
 
@@ -33,6 +34,12 @@ try:
     
     # print("Printed immediately.")
     # Initial Set Up
+    print('Starting Blender Open')
+    separator = "\\"
+    if not ("windows" in platform.system().lower()):
+        separator = "/"
+    localtime = time.asctime(time.localtime(time.time()))
+    print(localtime)
     PYODBC_Connection, df, sts = sq.import_initialization()
     ignore_launch = 0
     if (sts == "SUCCESS") and (len(df)>0):
@@ -42,12 +49,14 @@ try:
         base_file = row_1["base_file"]
         #base_directory= row_1["base_directory"]
         #base_file = 'base_file.blend'
+        #print("Position 1")
         for i_round in range(1,2,):
-            print("Starting round " + str(i_round))        
+            #print("Starting round " + str(i_round))        
             # Connection to Database
             sql = f"EXEC [WebSite].[FileMaxGetInfo]"
             df, sts = sq.ret_pandas(sql, PYODBC_Connection)
             sts = "SUCCESS"
+            #print("Position 2")
             ln = len(df)
             base_launch = 0
             if (ln==0):
@@ -64,6 +73,7 @@ try:
                     print(shutil.copyfile(src, dst))        
                 print(launch_file)
                 c = 0
+                #print("Position 3")
                 detect_file_open = 0
                 blender_not_open = 0
                 for process in psutil.process_iter ():
@@ -76,6 +86,7 @@ try:
                     #file_names = process.cmdline ()                       
                     if ((Name == "blender") or (Name=="blender.exe")) and (sts_user_name=="SUCCESS") and (sts_user_name=="SUCCESS"):
                         blender_not_open = 1
+                        #print("Position 4")
                         p = psutil.Process(int(ID))
                         file_names = p.cmdline()
                         if (len(file_names)==0):
@@ -83,7 +94,7 @@ try:
                             p.terminate()
                         else:                            
                             file_name = file_names[1]
-                            start_loc = file_name.rfind("\\")
+                            start_loc = file_name.rfind(separator)
                             if (start_loc<=0):
                                 # Terminate as this a blank file
                                 p.terminate()
@@ -97,10 +108,19 @@ try:
                 if (ignore_launch == 0):
                     print("Opening Files")
                     base_cmd = str(base_cmd)
+                    print(base_cmd)
                     if (len(base_cmd.strip())>1) and (base_cmd.lower() !='nan'):
-                        os.system(base_cmd + base_directory + launch_file) 
+                        print(base_cmd + ' ' + base_directory + launch_file)
+                        cmd = base_cmd + ' ' + base_directory + launch_file
+                        #cmd = 'nohup blender /home/amagcons/Documents/BlenderFiles/4_4.blend'
+                        print(cmd)
+                        returned_value = os.system(cmd)                         
+                        print("Opening returned a command of " + str(returned_value))
                     else:
-                        os.system(base_directory  + launch_file)
+                        cmd = base_directory  + launch_file
+                        print(cmd)                        
+                        returned_value = os.system(cmd)
+                        print("Opening returned a command of " + str(returned_value))
                     i_round=20
                     break
                 print("detect_file_open = " + str(detect_file_open))
@@ -112,6 +132,7 @@ try:
                     print("Rounds Run " + str(i_round))
                 else:
                     break
+    print("SUCCESS")
 except Exception as ex:            
-    sts = "FAILURE-" + str(ex)
+    sts = "FAILURE-" + str(ex)    
     print(sts)

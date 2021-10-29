@@ -43,17 +43,23 @@ try:
             sql = f"EXEC [WebSite].[FileNameStatusUpsert] @FileName = '{project_file}', @Status = '{project_status}'"
             sts = sq.run_sql(sql, PYODBC_Connection)
             cmd = 'docker-compose build amagcons_v15_12'
+            if not ("windows" in platform.system().lower()):
+                cmd = base_cmd + ' ' + cmd             
             returned_value = os.system(cmd)            
             if returned_value ==0:
                 ln = int(random.random()*100000)
                 print("Starting Docker Run")                
                 project_status = 'RUNNING'
                 sql = f"EXEC [WebSite].[FileNameStatusUpsert] @FileName = '{project_file}', @Status = '{project_status}'"
-                sts = sq.run_sql(sql, PYODBC_Connection)                
-                cmd = base_cmd + 'docker container run -v ' + output_dir_end + ':/output_data --name amagcons_v15_12_' + str(ln) + ' amagcons_v15_12'            
+                sts = sq.run_sql(sql, PYODBC_Connection)                                
+                cmd = 'docker container run -v ' + output_dir_end + ':/output_data --name amagcons_v15_12_' + str(ln) + ' amagcons_v15_12'            
+                if not ("windows" in platform.system().lower()):
+                    cmd = base_cmd + ' ' + cmd 
                 print(cmd)
                 returned_value = os.system(cmd)     
-                cmd = base_cmd + 'docker rm ' + 'amagcons_v15_12_' + str(ln)
+                cmd = 'docker rm ' + 'amagcons_v15_12_' + str(ln)                
+                if not ("windows" in platform.system().lower()):
+                    cmd = base_cmd + ' ' + cmd                 
                 project_status = 'FINISHED'
                 sql = f"EXEC [WebSite].[FileNameStatusUpsert] @FileName = '{project_file}', @Status = '{project_status}', @ContainerID = '', @ContainerName = ''"
                 sts = sq.run_sql(sql, PYODBC_Connection)                                
