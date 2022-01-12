@@ -5,6 +5,7 @@ import os
 #import api_general as ap
 import requests 
 import sqlalchemy
+import platform
 from sqlalchemy import create_engine, event
 
 def connect_db(PYODBC_Connection):
@@ -55,7 +56,18 @@ def run_sql(sql, PYODBC_Connection):
 
 def import_initialization():    
     try:
-        path = "/home/amagcons/Documents/BlenderFiles/PCScripts/InitializationFile.csv" 
+        path = script = os.path.realpath(__file__)
+        path = os.path.realpath(__file__)
+        separator = "\\"
+        source_file_name = "InitializationFileWindows.csv"
+        if not ("windows" in platform.system().lower()):
+            separator = "/"
+            source_file_name = "InitializationFileUbuntu.csv"
+        iloc = len(path)
+        iloc = path.rfind(separator,0, iloc)
+        path = path[:iloc] + separator + source_file_name
+        #print("Script path:", path)
+        #path = "/home/amagcons/Documents/BlenderFiles/PCScripts/InitializationFile.csv" 
         #df = pd.read_csv(r'InitializationFile.csv')        
         df = pd.read_csv(path)
         ln = len(df)
